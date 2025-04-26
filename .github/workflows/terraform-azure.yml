@@ -1,9 +1,12 @@
 name: Deploy Azure Resources with Terraform
 
 on:
-  push:
-    branches:
-      - master
+  # Allow manual workflow runs
+  workflow_dispatch:
+
+  # # Optional: Schedule the workflow to run at specific intervals (e.g., every Sunday at 00:00 UTC)
+  # schedule:
+  #   - cron: '0 0 * * 0' # This runs the workflow every Sunday at midnight UTC
 
 jobs:
   terraform:
@@ -32,15 +35,30 @@ jobs:
 
     # Step 4: Initialize Terraform
     - name: Terraform Init
-      working-directory: ./terraform # Specify the directory containing main.tf
+      working-directory: ./terraform
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
       run: terraform init
 
     # Step 5: Terraform Plan
     - name: Terraform Plan
-      working-directory: ./terraform # Specify the directory containing main.tf
+      working-directory: ./terraform
+      env:
+        TF_VAR_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.ARM_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.ARM_CLIENT_ID }}
+        TF_VAR_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}
       run: terraform plan -out=tfplan
 
     # Step 6: Terraform Apply
     - name: Terraform Apply
-      working-directory: ./terraform # Specify the directory containing main.tf
+      working-directory: ./terraform
+      env:
+        TF_VAR_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.ARM_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.ARM_CLIENT_ID }}
+        TF_VAR_client_secret: ${{ secrets.ARM_CLIENT_SECRET }}
       run: terraform apply -auto-approve tfplan
