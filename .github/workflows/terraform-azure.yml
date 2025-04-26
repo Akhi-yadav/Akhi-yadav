@@ -3,7 +3,7 @@ name: Deploy Azure Resources with Terraform
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   terraform:
@@ -15,29 +15,32 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Terraform
+    # Step 2: Setup Terraform
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
-        terraform_version: 1.5.7 # Replace with your required Terraform version
+        terraform_version: 1.5.7 # Specify your Terraform version
 
     # Step 3: Authenticate with Azure
     - name: Authenticate with Azure
-      run: |
-        echo "Setting Azure credentials..."
-        export ARM_CLIENT_ID=${{ secrets.ARM_CLIENT_ID }}
-        export ARM_CLIENT_SECRET=${{ secrets.ARM_CLIENT_SECRET }}
-        export ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }}
-        export ARM_TENANT_ID=${{ secrets.ARM_TENANT_ID }}
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      run: echo "Azure credentials set."
 
-    # Step 4: Terraform Init
+    # Step 4: Initialize Terraform
     - name: Terraform Init
+      working-directory: ./terraform/main.tf # Specify the directory containing main.tf
       run: terraform init
 
     # Step 5: Terraform Plan
     - name: Terraform Plan
+      working-directory: ./terraform/main.tf # Specify the directory containing main.tf
       run: terraform plan -out=tfplan
 
     # Step 6: Terraform Apply
     - name: Terraform Apply
+      working-directory: ./terraform/main.tf # Specify the directory containing main.tf
       run: terraform apply -auto-approve tfplan
