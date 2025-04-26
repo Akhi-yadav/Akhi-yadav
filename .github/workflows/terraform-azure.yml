@@ -32,15 +32,15 @@ jobs:
 
     # Step 4: Initialize Terraform
     - name: Terraform Init
-      working-directory: ./terraform/main.tf # Specify the directory containing main.tf
+      working-directory: ./terraform # Specify the directory containing main.tf
       run: terraform init
 
     # Step 5: Terraform Plan
     - name: Terraform Plan
-      working-directory: ./terraform/main.tf # Specify the directory containing main.tf
+      working-directory: ./terraform # Specify the directory containing main.tf
       run: terraform plan -out=tfplan
 
     # Step 6: Terraform Apply
     - name: Terraform Apply
-      working-directory: ./terraform/main.tf # Specify the directory containing main.tf
+      working-directory: ./terraform # Specify the directory containing main.tf
       run: terraform apply -auto-approve tfplan
