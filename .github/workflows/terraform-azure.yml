@@ -1,0 +1,43 @@
+name: Deploy Azure Resources with Terraform
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  terraform:
+    name: Terraform Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Terraform
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.7 # Replace with your required Terraform version
+
+    # Step 3: Authenticate with Azure
+    - name: Authenticate with Azure
+      run: |
+        echo "Setting Azure credentials..."
+        export ARM_CLIENT_ID=${{ secrets.ARM_CLIENT_ID }}
+        export ARM_CLIENT_SECRET=${{ secrets.ARM_CLIENT_SECRET }}
+        export ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }}
+        export ARM_TENANT_ID=${{ secrets.ARM_TENANT_ID }}
+
+    # Step 4: Terraform Init
+    - name: Terraform Init
+      run: terraform init
+
+    # Step 5: Terraform Plan
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan
+
+    # Step 6: Terraform Apply
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan
